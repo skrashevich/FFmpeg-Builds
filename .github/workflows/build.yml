@@ -22,6 +22,8 @@ on:
 
 env:
   DOCKER_BUILDKIT: 1
+  GITHUB_REPOSITORY: skrashevich/ffmpeg
+  REGISTRY_OVERRIDE: docker.io
 
 jobs:
   build_base:
@@ -38,12 +40,12 @@ jobs:
       - name: Login to Docker
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }} 
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Image Name
         id: imagename
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}/base" >> $GITHUB_OUTPUT
+        run: echo "name=${GITHUB_REPOSITORY,,}/base" >> $GITHUB_OUTPUT
       - name: Stop Commands
         run: T="$(echo -n ${{ github.token }} | sha256sum | head -c 64)" && echo -e "::add-mask::${T}\n::stop-commands::${T}"
       - name: Build target base image
@@ -63,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [win64,linux64,linuxarm64]
+        target: [linux64,linuxarm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -74,12 +76,12 @@ jobs:
       - name: Login to Docker
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Image Name
         id: imagename
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}/base-${{ matrix.target }}" >> $GITHUB_OUTPUT
+        run: echo "name=${GITHUB_REPOSITORY,,}/base-${{ matrix.target }}" >> $GITHUB_OUTPUT
       - name: Stop Commands
         run: T="$(echo -n ${{ github.token }} | sha256sum | head -c 64)" && echo -e "::add-mask::${T}\n::stop-commands::${T}"
       - name: Build target base image
@@ -99,8 +101,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [win64,linux64,linuxarm64]
-        variant: [gpl,lgpl,gpl 4.4,gpl 5.1,lgpl 4.4,lgpl 5.1,gpl-shared,lgpl-shared,gpl-shared 4.4,gpl-shared 5.1,lgpl-shared 4.4,lgpl-shared 5.1]
+        target: [linux64,linuxarm64]
+        variant: [gpl,lgpl,gpl 5.1,lgpl 5.1,gpl-shared,lgpl-shared,gpl-shared 5.1,lgpl-shared 5.1,nonfree,nonfree-shared,nonfree 5.1,nonfree-shared 5.1]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -111,15 +113,15 @@ jobs:
       - name: Login to Docker
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Generate Dockerfile
         run: ./generate.sh ${{ matrix.target }} ${{ matrix.variant }}
       - name: Image Name
         id: imagename
         run: |
-          IMG="ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.target }}-${{ matrix.variant }}"
+          IMG="${GITHUB_REPOSITORY,,}/${{ matrix.target }}-${{ matrix.variant }}"
           echo "name=${IMG/ /-}" >> $GITHUB_OUTPUT
           echo "gh_repo=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
       - name: Stop Commands
@@ -134,7 +136,7 @@ jobs:
           cache-to: type=registry,mode=max,ref=${{ steps.imagename.outputs.name }}:cache
           cache-from: type=registry,ref=${{ steps.imagename.outputs.name }}:cache
           build-args: |
-            GH_REPO=ghcr.io/${{ steps.imagename.outputs.gh_repo }}
+            GH_REPO=${{ steps.imagename.outputs.gh_repo }}
   build_ffmpeg:
     name: Build ffmpeg
     if: ${{ ( github.event.inputs.buildOnly == 'true' && !cancelled() ) || success() }}
@@ -151,13 +153,14 @@ jobs:
       - name: Login to Docker
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build ffmpeg
         run: |
           T="$(echo -n ${{ github.token }} | sha256sum | head -c 64)" && echo -e "::add-mask::${T}\n::stop-commands::${T}"
           ./build.sh ${{ matrix.target }} ${{ matrix.variant }}
+          ./docker.sh ${{ matrix.target }} ${{ matrix.variant }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

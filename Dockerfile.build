@@ -1,0 +1,9 @@
+FROM alpine
+ARG TARGET="linux64"
+ARG VARIANT="gpl"
+ARG ADDINS=""
+ADD artifacts /artifacts
+ 
+RUN tar -xf /artifacts/ffmpeg-*-${TARGET}-${VARIANT}*${ADDINS}.tar.xz && rm -rf ffmpeg-*/doc ffmpeg-*/include
+RUN mkdir -p /app && mv ffmpeg-*/* /app/
+RUN ls -la /app

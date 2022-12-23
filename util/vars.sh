@@ -36,6 +36,7 @@ REGISTRY="${REGISTRY_OVERRIDE:-ghcr.io}"
 BASE_IMAGE="${REGISTRY}/${REPO}/base:latest"
 TARGET_IMAGE="${REGISTRY}/${REPO}/base-${TARGET}:latest"
 IMAGE="${REGISTRY}/${REPO}/${TARGET}-${VARIANT}${ADDINS_STR:+-}${ADDINS_STR}:latest"
+IMAGE_FFMPEG="${REGISTRY}/${REPO}:${TARGET}-${VARIANT}${ADDINS_STR:+-}${ADDINS_STR}"
 
 ffbuild_dockerstage() {
     to_df "RUN --mount=src=${SELF},dst=/stage.sh run_stage /stage.sh"
