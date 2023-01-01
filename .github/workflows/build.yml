@@ -98,6 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
         target: [linux64,linuxarm64]
         variant: [gpl,gpl 5.1,gpl-shared,gpl-shared 5.1,nonfree,nonfree-shared,nonfree 5.1,nonfree-shared 5.1]
