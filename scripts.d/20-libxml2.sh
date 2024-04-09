@@ -1,16 +1,13 @@
 #!/bin/bash
 
-SCRIPT_REPO="https://gitlab.gnome.org/GNOME/libxml2.git"
-SCRIPT_COMMIT="b1319c902f6e44d08f8cb33f1fc28847f2bc8aeb"
+SCRIPT_REPO="https://github.com/GNOME/libxml2.git"
+SCRIPT_COMMIT="fe3cbf897ef510ef5b4842a82106dfd7ea987ec2"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" libxml2
-    cd libxml2
-
     local myconf=(
         --prefix="$FFBUILD_PREFIX"
         --without-python
