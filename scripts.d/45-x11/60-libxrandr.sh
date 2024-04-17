@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://gitlab.freedesktop.org/xorg/lib/libxrandr.git"
-SCRIPT_COMMIT="3387129532899eaeee3477a2d92fa662d7292a84"
+SCRIPT_COMMIT="512bf0b15b5597c721ff8c61083616ca9040fa72"
 
 ffbuild_enabled() {
     [[ $TARGET != linux* ]] && return -1
@@ -9,9 +9,6 @@ ffbuild_enabled() {
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" libxrandr
-    cd libxrandr
-
     autoreconf -i
 
     local myconf=(

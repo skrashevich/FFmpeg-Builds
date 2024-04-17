@@ -1,16 +1,13 @@
 #!/bin/bash
 
 SCRIPT_REPO="https://github.com/ultravideo/kvazaar.git"
-SCRIPT_COMMIT="a4005046ae2ebb3c88e92ff06736ce57b60fdcc7"
+SCRIPT_COMMIT="d8c96881a92258dad799db8ce5a60138f16b4898"
 
 ffbuild_enabled() {
     return 0
 }
 
 ffbuild_dockerbuild() {
-    git-mini-clone "$SCRIPT_REPO" "$SCRIPT_COMMIT" kvazaar
-    cd kvazaar
-
     ./autogen.sh
 
     local myconf=(
@@ -34,6 +31,7 @@ ffbuild_dockerbuild() {
     make install
 
     echo "Cflags.private: -DKVZ_STATIC_LIB" >> "$FFBUILD_PREFIX"/lib/pkgconfig/kvazaar.pc
+    echo "Libs.private: -lpthread" >> "$FFBUILD_PREFIX"/lib/pkgconfig/kvazaar.pc
 }
 
 ffbuild_configure() {
