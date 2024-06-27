@@ -1,6 +1,6 @@
 FROM ubuntu:23.10
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 RUN \
     apt-get -y update && \
     apt-get -y dist-upgrade && \
